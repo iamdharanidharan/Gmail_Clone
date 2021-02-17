@@ -87,8 +87,7 @@ function readSubjectAndSnippets(msgIds) {
                     button.setAttribute('data-target','#ViewEmail-modal');
                     button.setAttribute('data-toggle',"modal");
                     button.innerText= "View";
-                    let mID = msgIds[i];
-                    button.setAttribute('onclick',"readPrimary('"+mID+"')");
+                    button.setAttribute('onclick',"readPrimary('"+data1.result.id+"')");
                     
                    // console.log(msgIds[i]);
                     i++;
@@ -196,7 +195,7 @@ function readSubjectAndSnippetsOfSent(msgIds) {
 
 
 function readPrimary(messageID) {
-    console.log(messageID);
+   // console.log(messageID);
         gapi.client.gmail.users.messages.get({
             'userId': 'me',
             'id': messageID
