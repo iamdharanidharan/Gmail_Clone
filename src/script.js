@@ -349,6 +349,98 @@ function customSendMail() {
 
     })    
 }
+/////////////////////////////////////////////////////////////////////////////////////////////////
+
+function getDraftMsgIDs(){
+    var msgIds = [];
+    gapi.client.gmail.users.messages.list({
+        'userId': 'me',
+        'labelIds': 'DRAFT',
+        'maxResults': '10'
+    }).then(function (response) {
+        for (records in response.result.messages) {
+            var msgId = response.result.messages[records].id;
+            msgIds.push(msgId);
+        }
+        //appendPre('last message snippet' + response.result.messages[4].);
+        readSubjectAndSnippetsOfDraft(msgIds);
+    })
+}
+
+function readSubjectAndSnippetsOfDraft(msgIds) {
+    let resultDiv = document.getElementById('subjectAndSnippets');
+    if(resultDiv.innerHTML !== '') resultDiv.innerHTML = '';
+    var table = document.createElement('table');
+    table.setAttribute('class', 'table table-hover');
+    var tableBody = document.createElement('tbody');
+    tableBody.id = 'tableBody';
+    table.append(tableBody);
+    resultDiv.append(table);
+    
+    for (val in msgIds) {
+        gapi.client.gmail.users.messages.get({
+            'userId': 'me',
+            'id': msgIds[val]
+        }).then(res => {
+            //  let msg = res.data.payload.MessagePart.body.data ;
+            // let decodedMsg = btoa(msg);
+            return res;
+
+        }).then(data1 => {
+
+            // let encodeddata = data1.result.payload.parts[1].body.data;
+           // console.log(data1.result.payload.headers);
+            var snippet = data1.result.snippet;
+            var subject = '';
+            var from = '';
+            for (val in data1.result.payload.headers) {
+                if (data1.result.payload.headers[val].name == 'Subject') 
+                    subject= data1.result.payload.headers[val].value
+            }
+            for (val in data1.result.payload.headers) {
+                if (data1.result.payload.headers[val].name == 'From') 
+                    from = data1.result.payload.headers[val].value
+            }
+            var tr = document.createElement('tr');
+                    var td = document.createElement('td');
+                    td.innerText = from;
+                    tr.append(td);
+                    td = document.createElement('td');
+                    td.innerHTML = subject;
+                    tr.append(td);
+                    td = document.createElement('td');
+                    td.innerHTML = snippet;
+                    tr.append(td);
+                    var button= document.createElement('a');
+                    button.className="btn btn-primary";
+                    button.setAttribute('data-target','#ViewEmail-modal');
+                    button.setAttribute('data-toggle',"modal");
+                    button.innerText= "Edit";
+                    button.setAttribute('onclick',"readPrimary('"+data1.result.id+"')");
+                    
+                   // console.log(msgIds[i]);
+                   
+                    td = document.createElement('td');
+                    td.append(button);
+                    tr.append(td);
+                    var tBody = document.getElementById('tableBody');
+                    tBody.append(tr);
+
+            // encodeddata = encodeddata.replace(/-/g, '+').replace(/_/g, '/');
+            // encodeddata = atob(encodeddata);
+            //console.log();
+            //var encodeddata = data1.result.payload.parts[1].body.data;
+            // let lmessage = document.getElementById('lastEmail');
+            // lmessage.innerHTML = encodeddata;
+
+        })
+
+    }
+    //  populatePrimaryTable(subjectAndSnippet);
+}
+
+
+/////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 let cAlert = (message)=> {
